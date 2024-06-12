@@ -1,8 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CustomerSchema = void 0;
-const mongoose_1 = require("mongoose");
-exports.CustomerSchema = new mongoose_1.Schema({
+import { Schema } from "mongoose";
+import { ICustomer } from "./ICustomer";
+
+export const CustomerSchema: Schema<ICustomer> = new Schema(
+  {
     customerId: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -14,4 +14,11 @@ exports.CustomerSchema = new mongoose_1.Schema({
     email: { type: String, required: true },
     subscriptionDate: { type: Date },
     website: { type: String },
-}, { timestamps: true });
+    csvid: {
+      type: Schema.Types.ObjectId,
+      ref: "csvinfo",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);

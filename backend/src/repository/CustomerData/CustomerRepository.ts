@@ -1,10 +1,20 @@
-import Customer, { customerErrorModel } from "./CustomerModel";
+import Customer from "./CustomerModel";
 import { ICustomer } from "./ICustomer";
 
 class CustomerRepository {
   insertCustomers = async (customers: Partial<ICustomer>[]): Promise<void> => {
     try {
-      await Customer.insertMany(customers);
+      const batchSize = 1000;
+      let bulkOpCustomers = Customer.collection.initializeUnorderedBulkOp();
+
+      for (let i = 0; i < customers.length; i += batchSize) {
+        const batchCustomers = customers.slice(i, i + batchSize);
+        batchCustomers.forEach((customer) => {
+          bulkOpCustomers.insert(customer);
+        });
+        await bulkOpCustomers.execute();
+        bulkOpCustomers = Customer.collection.initializeUnorderedBulkOp();
+      }
     } catch (error) {
       console.log(error);
       throw new Error("Error inserting customers");
@@ -22,10 +32,6 @@ class CustomerRepository {
 
   addCustomer = async (body: ICustomer) => {
     return Customer.create(body);
-  };
-
-  addToErrorTable = async (body: Partial<ICustomer>) => {
-    return customerErrorModel.create(body);
   };
 }
 

@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
-const CustomerRepository_1 = __importDefault(require("../repository/CustomerRepository"));
+const CustomerRepository_1 = __importDefault(require("../repository/CustomerData/CustomerRepository"));
 const customerSchema_1 = require("../config/customerSchema");
 dotenv.config();
 class customerController {
@@ -40,10 +40,11 @@ class customerController {
                 const body = req.body;
                 const { error } = customerSchema_1.customerSchema.validate(body);
                 if (error) {
-                    const addDataInErrorTable = yield CustomerRepository_1.default.addToErrorTable(body);
+                    // const addDataInErrorTable = await CustomerRepository.addToErrorTable(
+                    //   body
+                    // );
                     res.json({
                         message: "Data inserted in Error table",
-                        addDataInErrorTable,
                     });
                     return;
                 }

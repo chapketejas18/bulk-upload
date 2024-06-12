@@ -1,9 +1,8 @@
-import { Schema } from "mongoose";
-import { ICustomer } from "./ICustomer";
-
-export const CustomerSchema: Schema<ICustomer> = new Schema(
-  {
-    index: { type: Number, required: true },
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CustomerSchema = void 0;
+const mongoose_1 = require("mongoose");
+exports.CustomerSchema = new mongoose_1.Schema({
     customerId: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -15,6 +14,4 @@ export const CustomerSchema: Schema<ICustomer> = new Schema(
     email: { type: String, required: true },
     subscriptionDate: { type: Date },
     website: { type: String },
-  },
-  { timestamps: true }
-);
+}, { timestamps: true });

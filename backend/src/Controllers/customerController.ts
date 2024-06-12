@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import dotenv = require("dotenv");
-import CustomerRepository from "../repository/CustomerRepository";
+import CustomerRepository from "../repository/CustomerData/CustomerRepository";
 import { customerSchema } from "../config/customerSchema";
 dotenv.config();
 
@@ -30,12 +30,11 @@ class customerController {
       const body = req.body;
       const { error } = customerSchema.validate(body);
       if (error) {
-        const addDataInErrorTable = await CustomerRepository.addToErrorTable(
-          body
-        );
+        // const addDataInErrorTable = await CustomerRepository.addToErrorTable(
+        //   body
+        // );
         res.json({
           message: "Data inserted in Error table",
-          addDataInErrorTable,
         });
         return;
       }

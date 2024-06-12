@@ -14,4 +14,9 @@ exports.CustomerSchema = new mongoose_1.Schema({
     email: { type: String, required: true },
     subscriptionDate: { type: Date },
     website: { type: String },
+    csvid: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "csvinfo",
+        required: true,
+    },
 }, { timestamps: true });

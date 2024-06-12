@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.customerSchema = void 0;
 const joi_1 = __importDefault(require("joi"));
 exports.customerSchema = joi_1.default.object({
-    index: joi_1.default.number().required(),
     customerId: joi_1.default.string().required(),
     firstName: joi_1.default.string().required(),
     lastName: joi_1.default.string().required(),

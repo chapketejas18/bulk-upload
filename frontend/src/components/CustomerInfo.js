@@ -51,7 +51,6 @@ export const CustomerInfo = () => {
         <Table sx={style}>
           <TableHead>
             <TableRow>
-              <TableCell sx={style}>Index</TableCell>
               <TableCell sx={style}>Customer ID</TableCell>
               <TableCell sx={style}>First Name</TableCell>
               <TableCell sx={style}>Last Name</TableCell>
@@ -77,11 +76,8 @@ export const CustomerInfo = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              customers.map((customer, index) => (
+              customers.map((customer) => (
                 <TableRow key={customer.customerId}>
-                  <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                    {customer.index}
-                  </TableCell>
                   <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
                     {customer.customerId}
                   </TableCell>

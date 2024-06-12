@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import fs from "fs";
 import csv from "csv-parser";
-import { ICustomer } from "../repository/ICustomer";
-import CustomerRepository from "../repository/CustomerRepository";
+import { ICustomer } from "../repository/CustomerData/ICustomer";
+import CustomerRepository from "../repository/CustomerData/CustomerRepository";
+import { customerSchema } from "../config/customerSchema";
+import DataWithErrorRepository from "../repository/DataWithError/DataWithErrorRepository";
+import CsvDataMapperRepository from "../repository/CsvDataMapper/CsvDataMapperRepository";
+import { ICsvDataMapper } from "../repository/CsvDataMapper/ICsvDataMapper";
 
 interface CustomRequest extends Request {
   filePath?: string;
@@ -16,7 +20,12 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
     return;
   }
 
+  const startedAt = new Date();
   const customers: Partial<ICustomer>[] = [];
+  const customersWithError: {
+    customerId: string;
+    validationerrors: string;
+  }[] = [];
   const readStream = fs.createReadStream(filePath);
   const parser = csv();
 
@@ -24,8 +33,7 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
     .pipe(parser)
     .on("data", (data) => {
       try {
-        customers.push({
-          index: parseInt(data.Index, 10),
+        const customer = {
           customerId: data["Customer Id"],
           firstName: data["First Name"],
           lastName: data["Last Name"],
@@ -37,19 +45,47 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
           email: data.Email,
           subscriptionDate: new Date(data["Subscription Date"]),
           website: data.Website,
-        });
+        };
+
+        const { error } = customerSchema.validate(customer);
+        if (error) {
+          customersWithError.push({
+            customerId: customer.customerId,
+            validationerrors: error.message,
+          });
+          return;
+        }
+
+        customers.push(customer);
       } catch (error) {
         console.error("Error parsing row:", error, data);
       }
     })
     .on("end", async () => {
       try {
+        const endedAt = new Date();
         fs.unlinkSync(filePath);
-        await CustomerRepository.insertCustomers(customers);
-        res.status(200).send("CSV file imported successfully.");
+        const csvInfo: ICsvDataMapper = {
+          filename: filePath.split("/")[3],
+          startedat: startedAt,
+          endedat: endedAt,
+        };
+        const csvInfoRecord = await CsvDataMapperRepository.insertCsvInfo(
+          csvInfo
+        );
+        const customersWithCsvId = customers.map((customer) => ({
+          ...customer,
+          csvid: csvInfoRecord._id,
+        }));
+        await CustomerRepository.insertCustomers(customersWithCsvId);
+        await DataWithErrorRepository.insertErrorInfo(customersWithError);
+
+        res.status(200).json({
+          message: "CSV file imported successfully.",
+        });
       } catch (error) {
         console.log(error);
-        res.status(500).send("Error importing CSV file: ");
+        res.status(500).send("Error importing CSV file");
       }
     })
     .on("error", (error) => {
