@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserSchema = void 0;
+const mongoose_1 = require("mongoose");
+exports.UserSchema = new mongoose_1.Schema({
+    index: { type: Number, required: true },
+    customerId: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    company: { type: String },
+    city: { type: String },
+    country: { type: String },
+    phone1: { type: String, required: true },
+    phone2: { type: String },
+    email: { type: String, required: true },
+    subscriptionDate: { type: Date },
+    website: { type: String },
+}, { timestamps: true });
