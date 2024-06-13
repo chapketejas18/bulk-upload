@@ -15,6 +15,15 @@ class CsvDataMapperRepository {
         this.insertCsvInfo = (csvinfo) => __awaiter(this, void 0, void 0, function* () {
             return CsvDataMapperModel_1.CsvDataMapperModel.create(csvinfo);
         });
+        this.updateCsvInfo = (id, updateData) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield CsvDataMapperModel_1.CsvDataMapperModel.updateOne({ _id: id }, { $set: updateData });
+            }
+            catch (error) {
+                console.log(error);
+                throw new Error("Error updating CSV info");
+            }
+        });
     }
 }
 exports.default = new CsvDataMapperRepository();

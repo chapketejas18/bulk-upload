@@ -23,15 +23,18 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
   const startedAt = new Date();
   const customers: Partial<ICustomer>[] = [];
   const customersWithError: {
-    customerId: string;
+    rowNumber: number;
     validationerrors: string;
   }[] = [];
+  let currentRowNumber = 0;
+
   const readStream = fs.createReadStream(filePath);
   const parser = csv();
 
   readStream
     .pipe(parser)
     .on("data", (data) => {
+      currentRowNumber++;
       try {
         const customer = {
           customerId: data["Customer Id"],
@@ -50,7 +53,7 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
         const { error } = customerSchema.validate(customer);
         if (error) {
           customersWithError.push({
-            customerId: customer.customerId,
+            rowNumber: currentRowNumber,
             validationerrors: error.message,
           });
           return;
@@ -77,8 +80,13 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
           ...customer,
           csvid: csvInfoRecord._id,
         }));
+
         await CustomerRepository.insertCustomers(customersWithCsvId);
         await DataWithErrorRepository.insertErrorInfo(customersWithError);
+        await CsvDataMapperRepository.updateCsvInfo(
+          csvInfoRecord._id.toString(),
+          { endedat: new Date() }
+        );
 
         res.status(200).json({
           message: "CSV file imported successfully.",
