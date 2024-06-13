@@ -12,8 +12,18 @@ import SearchIcon from "@mui/icons-material/Search";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { useNavigate } from "react-router-dom";
+import Divider from "@mui/material/Divider";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import GroupsIcon from "@mui/icons-material/Groups";
+import { useLocation, useNavigate } from "react-router-dom";
+
+const routes = [
+  { path: "/v1/addcustomer", name: "Add a customer", icon: <PersonAddIcon /> },
+  { path: "/v1/bulkupload", name: "Bulk Upload", icon: <UploadFileIcon /> },
+];
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -48,19 +58,28 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     [theme.breakpoints.up("sm")]: {
-      width: "12ch",
+      width: "20ch",
       "&:focus": {
-        width: "20ch",
+        width: "40ch",
       },
     },
   },
 }));
 
-export const Layout = () => {
+export const Layout = ({ onSearch }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
+  };
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      onSearch(searchText);
+    }
   };
 
   return (
@@ -82,31 +101,35 @@ export const Layout = () => {
             noWrap
             component="div"
             sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+            onClick={() => navigate("/v1/customerlogs")}
           >
             Customer logs
           </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
+          {location.pathname == "/v1/customerlogs" && (
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search…"
+                inputProps={{ "aria-label": "search" }}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </Search>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer}>
         <List>
-          <ListItem onClick={() => navigate("/v1/customerlogs")}>
-            <ListItemText primary="Customer Logs" />
-          </ListItem>
-          <ListItem onClick={() => navigate("/v1/addcustomer")}>
-            <ListItemText primary="Add a customer" />
-          </ListItem>
-          <ListItem onClick={() => navigate("/v1/bulkupload")}>
-            <ListItemText primary="Bulk Upload" />
-          </ListItem>
+          {routes.map((route, index) => (
+            <ListItem key={index} onClick={() => navigate(route.path)}>
+              <ListItemIcon>{route.icon}</ListItemIcon>
+              <ListItemText primary={route.name} />
+            </ListItem>
+          ))}
+          <Divider />
         </List>
       </Drawer>
     </Box>

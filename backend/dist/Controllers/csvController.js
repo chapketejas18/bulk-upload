@@ -79,6 +79,7 @@ const importCSV = (req, res) => {
             yield CsvDataMapperRepository_1.default.updateCsvInfo(csvInfoRecord._id.toString(), { endedat: new Date() });
             res.status(200).json({
                 message: "CSV file imported successfully.",
+                totalRowsInserted: customers.length,
             });
         }
         catch (error) {

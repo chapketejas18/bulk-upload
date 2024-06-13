@@ -30,18 +30,27 @@ class customerController {
       const body = req.body;
       const { error } = customerSchema.validate(body);
       if (error) {
-        // const addDataInErrorTable = await CustomerRepository.addToErrorTable(
-        //   body
-        // );
         res.json({
-          message: "Data inserted in Error table",
+          message: "Data not inserted due validation error in data provided",
+          validationErrors : error,
         });
         return;
       }
       const addedData = await CustomerRepository.addCustomer(body);
-      res.json({ status: "Created Successfully", addedData });
+      res.status(200).json({ status: "Created Successfully", addedData });
     } catch (error) {
       console.log("Error creating data:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  searchCustomer = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { searchField, searchText } = req.body;
+      const searchData = await CustomerRepository.searchCustomers(searchField, searchText);
+      res.json({ message: "Search results fetched successfully", searchData });
+    } catch (error) {
+      console.log("Error searching data:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   };

@@ -16,7 +16,6 @@ exports.CustomerSchema = new mongoose_1.Schema({
     website: { type: String },
     csvid: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "csvinfo",
-        required: true,
+        ref: "csvinfo"
     },
 }, { timestamps: true });

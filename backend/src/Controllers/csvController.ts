@@ -90,6 +90,7 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
 
         res.status(200).json({
           message: "CSV file imported successfully.",
+          totalRowsInserted : customers.length,
         });
       } catch (error) {
         console.log(error);

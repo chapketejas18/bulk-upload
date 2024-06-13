@@ -16,8 +16,7 @@ export const CustomerSchema: Schema<ICustomer> = new Schema(
     website: { type: String },
     csvid: {
       type: Schema.Types.ObjectId,
-      ref: "csvinfo",
-      required: true,
+      ref: "csvinfo"
     },
   },
   { timestamps: true }

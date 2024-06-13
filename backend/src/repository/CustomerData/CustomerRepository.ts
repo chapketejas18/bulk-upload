@@ -33,6 +33,11 @@ class CustomerRepository {
   addCustomer = async (body: ICustomer) => {
     return Customer.create(body);
   };
+
+  searchCustomers = async (searchField: string, searchText: string) => {
+    const query = { [searchField]: new RegExp(searchText, 'i') };
+    return Customer.find(query);
+  };
 }
 
 export default new CustomerRepository();

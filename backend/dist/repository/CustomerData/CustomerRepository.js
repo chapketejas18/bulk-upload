@@ -43,6 +43,10 @@ class CustomerRepository {
         this.addCustomer = (body) => __awaiter(this, void 0, void 0, function* () {
             return CustomerModel_1.default.create(body);
         });
+        this.searchCustomers = (searchField, searchText) => __awaiter(this, void 0, void 0, function* () {
+            const query = { [searchField]: new RegExp(searchText, 'i') };
+            return CustomerModel_1.default.find(query);
+        });
     }
 }
 exports.default = new CustomerRepository();

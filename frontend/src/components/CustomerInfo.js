@@ -8,24 +8,26 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
+  TablePagination,
 } from "@mui/material";
 import { Layout } from "./Layout";
 
 export const CustomerInfo = () => {
   const [customers, setCustomers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage] = useState(30);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetchCustomerData();
-  }, [currentPage]);
+  }, [page, rowsPerPage]);
 
   const fetchCustomerData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:9000/api/customerinfo?page=${currentPage}&limit=${customersPerPage}`
+        `http://localhost:9000/api/customerinfo?page=${
+          page + 1
+        }&limit=${rowsPerPage}`
       );
       const { customerData, totalCount } = response.data;
       setCustomers(customerData);
@@ -35,18 +37,35 @@ export const CustomerInfo = () => {
     }
   };
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleSearch = async (searchText) => {
+    try {
+      const response = await axios.post(`http://localhost:9000/api/search`, {
+        searchField: "customerId",
+        searchText: searchText,
+      });
+      setCustomers(response.data.searchData);
+      setTotalCount(response.data.searchData.length);
+    } catch (error) {
+      console.error("Error searching customer information:", error);
+    }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const style = () => {
     return { border: 1, borderColor: "grey.400", fontWeight: "bold" };
   };
 
-  const isFirstPage = currentPage === 1;
-  const isLastPage = Math.ceil(totalCount / customersPerPage) === currentPage;
-
   return (
     <div>
-      <Layout />
+      <Layout onSearch={handleSearch} />
       <TableContainer component={Paper}>
         <Table sx={style}>
           <TableHead>
@@ -120,21 +139,15 @@ export const CustomerInfo = () => {
         </Table>
       </TableContainer>
       {customers.length !== 0 && (
-        <div style={{ marginTop: "20px", textAlign: "right" }}>
-          <Button
-            disabled={isFirstPage}
-            onClick={() => paginate(currentPage - 1)}
-          >
-            Prev
-          </Button>
-          <span style={{ margin: "0 10px" }}>Page {currentPage}</span>
-          <Button
-            disabled={isLastPage}
-            onClick={() => paginate(currentPage + 1)}
-          >
-            Next
-          </Button>
-        </div>
+        <TablePagination
+          component="div"
+          count={totalCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[100, 500, 1000, 5000, 10000]}
+        />
       )}
     </div>
   );
