@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CustomerInfo } from "./components/CustomerInfo";
 import { AddCustomer } from "./components/AddCustomer";
 import { BulkUpload } from "./components/BulkUpload";
+import { ViewData } from "./components/ViewData";
 
 export const App = () => {
   return (
@@ -12,6 +13,7 @@ export const App = () => {
           <Route path="customerlogs" element={<CustomerInfo />} />
           <Route path="addcustomer" element={<AddCustomer />} />
           <Route path="bulkupload" element={<BulkUpload />} />
+          <Route path="viewdata" element={<ViewData />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -65,6 +65,40 @@ class customerController {
                 res.status(500).json({ error: "Internal server error" });
             }
         });
+        this.getSingleCustomer = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { customerId } = req.body;
+                const customer = yield CustomerRepository_1.default.getCustomerById(customerId);
+                if (!customer) {
+                    res.status(404).json({ error: "Customer not found" });
+                    return;
+                }
+                res.json({ message: "Customer found", customer });
+            }
+            catch (error) {
+                console.log("Error fetching customer:", error);
+                res.status(500).json({ error: "Internal server error" });
+            }
+        });
+        this.editCustomer = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { customerId, newData } = req.body;
+                const { error } = customerSchema_1.customerSchema.validate(newData);
+                if (error) {
+                    res.status(400).json({
+                        message: "Validation error in new data",
+                        validationErrors: error,
+                    });
+                    return;
+                }
+                const updatedCustomer = yield CustomerRepository_1.default.updateCustomer(customerId, newData);
+                res.json({ message: "Customer updated", customer: updatedCustomer });
+            }
+            catch (error) {
+                console.log("Error updating customer:", error);
+                res.status(500).json({ error: "Internal server error" });
+            }
+        });
     }
 }
 exports.default = new customerController();

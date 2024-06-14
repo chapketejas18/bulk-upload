@@ -35,8 +35,16 @@ class CustomerRepository {
   };
 
   searchCustomers = async (searchField: string, searchText: string) => {
-    const query = { [searchField]: new RegExp(searchText, 'i') };
+    const query = { [searchField]: new RegExp(searchText, "i") };
     return Customer.find(query);
+  };
+
+  getCustomerById = async (customerId: string) => {
+    return Customer.findOne({ customerId });
+  };
+
+  updateCustomer = async (customerId: string, newData: Partial<ICustomer>) => {
+    return Customer.findOneAndUpdate({ customerId }, newData, { new: true });
   };
 }
 

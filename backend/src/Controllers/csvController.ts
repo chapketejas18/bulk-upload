@@ -7,6 +7,7 @@ import { customerSchema } from "../config/customerSchema";
 import DataWithErrorRepository from "../repository/DataWithError/DataWithErrorRepository";
 import CsvDataMapperRepository from "../repository/CsvDataMapper/CsvDataMapperRepository";
 import { ICsvDataMapper } from "../repository/CsvDataMapper/ICsvDataMapper";
+import { ObjectId } from "mongodb";
 
 interface CustomRequest extends Request {
   filePath?: string;
@@ -25,8 +26,10 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
   const customersWithError: {
     rowNumber: number;
     validationerrors: string;
+    csvid: ObjectId;
   }[] = [];
   let currentRowNumber = 0;
+  let csvInfoRecordId: ObjectId;
 
   const readStream = fs.createReadStream(filePath);
   const parser = csv();
@@ -55,6 +58,7 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
           customersWithError.push({
             rowNumber: currentRowNumber,
             validationerrors: error.message,
+            csvid: csvInfoRecordId,
           });
           return;
         }
@@ -72,25 +76,35 @@ export const importCSV = (req: CustomRequest, res: Response): void => {
           filename: filePath.split("/")[3],
           startedat: startedAt,
           endedat: endedAt,
+          noofuploadeddata: customers.length,
         };
+
         const csvInfoRecord = await CsvDataMapperRepository.insertCsvInfo(
           csvInfo
         );
+        csvInfoRecordId = csvInfoRecord._id;
+
         const customersWithCsvId = customers.map((customer) => ({
           ...customer,
-          csvid: csvInfoRecord._id,
+          csvid: csvInfoRecordId,
         }));
+
+        customersWithError.forEach((errorRecord) => {
+          errorRecord.csvid = csvInfoRecordId;
+        });
 
         await CustomerRepository.insertCustomers(customersWithCsvId);
         await DataWithErrorRepository.insertErrorInfo(customersWithError);
         await CsvDataMapperRepository.updateCsvInfo(
-          csvInfoRecord._id.toString(),
+          csvInfoRecordId.toString(),
           { endedat: new Date() }
         );
 
         res.status(200).json({
           message: "CSV file imported successfully.",
-          totalRowsInserted : customers.length,
+          totalRowsInserted: customers.length,
+          errorData: customersWithError,
+          errorDataLength: customersWithError.length,
         });
       } catch (error) {
         console.log(error);

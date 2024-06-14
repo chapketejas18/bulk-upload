@@ -9,5 +9,7 @@ router.get("/customerinfo", customerController.getAllCustomerData);
 router.post("/addcustomer", customerController.createData);
 router.post("/import-csv", uploadCSV, importCSV);
 router.post("/search", customerController.searchCustomer);
+router.post("/get-customer", customerController.getSingleCustomer);
+router.put("/edit-customer", customerController.editCustomer);
 
 export default router;

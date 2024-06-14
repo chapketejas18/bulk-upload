@@ -44,8 +44,14 @@ class CustomerRepository {
             return CustomerModel_1.default.create(body);
         });
         this.searchCustomers = (searchField, searchText) => __awaiter(this, void 0, void 0, function* () {
-            const query = { [searchField]: new RegExp(searchText, 'i') };
+            const query = { [searchField]: new RegExp(searchText, "i") };
             return CustomerModel_1.default.find(query);
+        });
+        this.getCustomerById = (customerId) => __awaiter(this, void 0, void 0, function* () {
+            return CustomerModel_1.default.findOne({ customerId });
+        });
+        this.updateCustomer = (customerId, newData) => __awaiter(this, void 0, void 0, function* () {
+            return CustomerModel_1.default.findOneAndUpdate({ customerId }, newData, { new: true });
         });
     }
 }

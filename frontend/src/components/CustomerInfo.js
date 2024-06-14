@@ -9,14 +9,19 @@ import {
   TableRow,
   Paper,
   TablePagination,
+  IconButton,
+  Box,
 } from "@mui/material";
+import { Visibility, Edit } from "@mui/icons-material";
 import { Layout } from "./Layout";
+import { useNavigate } from "react-router-dom";
 
 export const CustomerInfo = () => {
   const [customers, setCustomers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(100);
   const [totalCount, setTotalCount] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCustomerData();
@@ -40,13 +45,28 @@ export const CustomerInfo = () => {
   const handleSearch = async (searchText) => {
     try {
       const response = await axios.post(`http://localhost:9000/api/search`, {
-        searchField: "customerId",
+        searchField: "firstName",
         searchText: searchText,
       });
       setCustomers(response.data.searchData);
       setTotalCount(response.data.searchData.length);
     } catch (error) {
       console.error("Error searching customer information:", error);
+    }
+  };
+
+  const handleView = async (customerId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:9000/api/get-customer`,
+        { customerId }
+      );
+      console.log(response.data.customer);
+      navigate("/v1/viewdata", {
+        state: { customerData: response.data.customer },
+      });
+    } catch (error) {
+      console.error("Error fetching customer information:", error);
     }
   };
 
@@ -81,6 +101,7 @@ export const CustomerInfo = () => {
               <TableCell sx={style}>Email</TableCell>
               <TableCell sx={style}>Subscription Date</TableCell>
               <TableCell sx={style}>Website</TableCell>
+              <TableCell sx={style}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -131,6 +152,18 @@ export const CustomerInfo = () => {
                   </TableCell>
                   <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
                     {customer.website || "N/A"}
+                  </TableCell>
+                  <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
+                    <Box display="flex">
+                      <IconButton
+                        onClick={() => handleView(customer.customerId)}
+                      >
+                        <Visibility />
+                      </IconButton>
+                      <IconButton>
+                        <Edit />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))

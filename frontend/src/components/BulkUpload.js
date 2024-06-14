@@ -14,7 +14,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Layout } from "./Layout";
 
 export const BulkUpload = () => {
-  const [file, setFile] = useState(null); // State to store selected file
+  const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -22,7 +22,8 @@ export const BulkUpload = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [uploadingProgress, setUploadingProgress] = useState(false); // State for showing the backdrop
+  const [uploadingProgress, setUploadingProgress] = useState(false);
+  const [errorData, setErrorData] = useState([]);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -36,7 +37,7 @@ export const BulkUpload = () => {
 
     setUploading(true);
     setStartTime(new Date());
-    setUploadingProgress(true); // Show backdrop with circular progress
+    setUploadingProgress(true);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -55,14 +56,12 @@ export const BulkUpload = () => {
 
       setEndTime(new Date());
       setTotalRowsInserted(data.totalRowsInserted);
+      setErrorData(data.errorData || []);
 
       setSnackbarSeverity("success");
       setSnackbarMessage("File uploaded successfully!");
       setSnackbarOpen(true);
-
-      // Clear selected file after successful upload
       setFile(null);
-      // Reset the file input value to clear the displayed file name
       document.getElementById("file-input").value = "";
     } catch (error) {
       console.error("Upload failed:", error.message);
@@ -72,7 +71,7 @@ export const BulkUpload = () => {
       setSnackbarOpen(true);
     } finally {
       setUploading(false);
-      setUploadingProgress(false); // Hide backdrop after upload completes
+      setUploadingProgress(false);
     }
   };
 
@@ -100,7 +99,7 @@ export const BulkUpload = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          <h2>Select file to upload:</h2>
+          <h2>Select file to upload :</h2>
           <input
             id="file-input"
             type="file"
@@ -132,24 +131,68 @@ export const BulkUpload = () => {
         )}
       </div>
       {startTime && endTime && (
-        <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Start Time</TableCell>
-                <TableCell>End Time</TableCell>
-                <TableCell>Total Rows Inserted</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>{formatTime(startTime)}</TableCell>
-                <TableCell>{formatTime(endTime)}</TableCell>
-                <TableCell>{totalRowsInserted}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <>
+          <h2>Upload summary</h2>
+          <TableContainer
+            component={Paper}
+            style={{
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>Start Time</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>End Time</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    Total Rows Inserted
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>{formatTime(startTime)}</TableCell>
+                  <TableCell>{formatTime(endTime)}</TableCell>
+                  <TableCell>{totalRowsInserted}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
+      {errorData.length > 0 && (
+        <>
+          <h2>Error Details</h2>
+          <TableContainer
+            component={Paper}
+            style={{
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>Row Number</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    Error Details
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {errorData.map((error, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{error.rowNumber}</TableCell>
+                    <TableCell>{error.validationerrors}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
       <Snackbar
         open={snackbarOpen}

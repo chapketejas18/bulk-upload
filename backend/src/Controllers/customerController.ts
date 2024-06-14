@@ -32,7 +32,7 @@ class customerController {
       if (error) {
         res.json({
           message: "Data not inserted due validation error in data provided",
-          validationErrors : error,
+          validationErrors: error,
         });
         return;
       }
@@ -47,10 +47,50 @@ class customerController {
   searchCustomer = async (req: Request, res: Response): Promise<void> => {
     try {
       const { searchField, searchText } = req.body;
-      const searchData = await CustomerRepository.searchCustomers(searchField, searchText);
+      const searchData = await CustomerRepository.searchCustomers(
+        searchField,
+        searchText
+      );
       res.json({ message: "Search results fetched successfully", searchData });
     } catch (error) {
       console.log("Error searching data:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  getSingleCustomer = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { customerId } = req.body;
+      const customer = await CustomerRepository.getCustomerById(customerId);
+      if (!customer) {
+        res.status(404).json({ error: "Customer not found" });
+        return;
+      }
+      res.json({ message: "Customer found", customer });
+    } catch (error) {
+      console.log("Error fetching customer:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  editCustomer = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { customerId, newData } = req.body;
+      const { error } = customerSchema.validate(newData);
+      if (error) {
+        res.status(400).json({
+          message: "Validation error in new data",
+          validationErrors: error,
+        });
+        return;
+      }
+      const updatedCustomer = await CustomerRepository.updateCustomer(
+        customerId,
+        newData
+      );
+      res.json({ message: "Customer updated", customer: updatedCustomer });
+    } catch (error) {
+      console.log("Error updating customer:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   };

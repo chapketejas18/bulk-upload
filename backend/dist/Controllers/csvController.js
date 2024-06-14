@@ -29,6 +29,7 @@ const importCSV = (req, res) => {
     const customers = [];
     const customersWithError = [];
     let currentRowNumber = 0;
+    let csvInfoRecordId;
     const readStream = fs_1.default.createReadStream(filePath);
     const parser = (0, csv_parser_1.default)();
     readStream
@@ -54,6 +55,7 @@ const importCSV = (req, res) => {
                 customersWithError.push({
                     rowNumber: currentRowNumber,
                     validationerrors: error.message,
+                    csvid: csvInfoRecordId,
                 });
                 return;
             }
@@ -71,15 +73,22 @@ const importCSV = (req, res) => {
                 filename: filePath.split("/")[3],
                 startedat: startedAt,
                 endedat: endedAt,
+                noofuploadeddata: customers.length,
             };
             const csvInfoRecord = yield CsvDataMapperRepository_1.default.insertCsvInfo(csvInfo);
-            const customersWithCsvId = customers.map((customer) => (Object.assign(Object.assign({}, customer), { csvid: csvInfoRecord._id })));
+            csvInfoRecordId = csvInfoRecord._id;
+            const customersWithCsvId = customers.map((customer) => (Object.assign(Object.assign({}, customer), { csvid: csvInfoRecordId })));
+            customersWithError.forEach((errorRecord) => {
+                errorRecord.csvid = csvInfoRecordId;
+            });
             yield CustomerRepository_1.default.insertCustomers(customersWithCsvId);
             yield DataWithErrorRepository_1.default.insertErrorInfo(customersWithError);
-            yield CsvDataMapperRepository_1.default.updateCsvInfo(csvInfoRecord._id.toString(), { endedat: new Date() });
+            yield CsvDataMapperRepository_1.default.updateCsvInfo(csvInfoRecordId.toString(), { endedat: new Date() });
             res.status(200).json({
                 message: "CSV file imported successfully.",
                 totalRowsInserted: customers.length,
+                errorData: customersWithError,
+                errorDataLength: customersWithError.length,
             });
         }
         catch (error) {

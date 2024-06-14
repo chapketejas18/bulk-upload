@@ -6,4 +6,5 @@ exports.CsvDataMapperSchema = new mongoose_1.Schema({
     startedat: { type: Date, required: true },
     endedat: { type: Date, required: true },
     filename: { type: String, required: true },
+    noofuploadeddata: { type: Number, required: true },
 });
