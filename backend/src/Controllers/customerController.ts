@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import dotenv = require("dotenv");
 import CustomerRepository from "../repository/CustomerData/CustomerRepository";
 import { customerSchema } from "../config/customerSchema";
+import CsvDataMapperRepository from "../repository/CsvDataMapper/CsvDataMapperRepository";
+import { CsvDataMapperModel } from "../repository/CsvDataMapper/CsvDataMapperModel";
 dotenv.config();
 
 class customerController {
@@ -79,7 +81,7 @@ class customerController {
       const { error } = customerSchema.validate(newData);
       if (error) {
         res.status(400).json({
-          message: "Validation error in new data",
+          message: "Validation error in edited data",
           validationErrors: error,
         });
         return;
@@ -92,6 +94,25 @@ class customerController {
     } catch (error) {
       console.log("Error updating customer:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  getCsvInfos = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const page = parseInt(req.query.page as string);
+      const limit = parseInt(req.query.limit as string);
+      const csvInfoData = await CsvDataMapperRepository.getInfoData(
+        page,
+        limit
+      );
+      const totalCount = await CsvDataMapperModel.countDocuments();
+      res.status(200).json({
+        message: "Data fetched successfully",
+        csvInfoData,
+        totalCount,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
     }
   };
 }

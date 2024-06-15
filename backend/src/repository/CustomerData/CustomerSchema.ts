@@ -3,7 +3,7 @@ import { ICustomer } from "./ICustomer";
 
 export const CustomerSchema: Schema<ICustomer> = new Schema(
   {
-    customerId: { type: String, required: true },
+    customerId: { type: String },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     company: { type: String },
@@ -16,7 +16,7 @@ export const CustomerSchema: Schema<ICustomer> = new Schema(
     website: { type: String },
     csvid: {
       type: Schema.Types.ObjectId,
-      ref: "csvinfo"
+      ref: "csvinfo",
     },
   },
   { timestamps: true }

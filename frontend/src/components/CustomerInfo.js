@@ -11,8 +11,9 @@ import {
   TablePagination,
   IconButton,
   Box,
+  Button,
 } from "@mui/material";
-import { Visibility, Edit } from "@mui/icons-material";
+import { Visibility, Edit, Add } from "@mui/icons-material";
 import { Layout } from "./Layout";
 import { useNavigate } from "react-router-dom";
 
@@ -61,13 +62,18 @@ export const CustomerInfo = () => {
         `http://localhost:9000/api/get-customer`,
         { customerId }
       );
-      console.log(response.data.customer);
       navigate("/v1/viewdata", {
         state: { customerData: response.data.customer },
       });
     } catch (error) {
       console.error("Error fetching customer information:", error);
     }
+  };
+
+  const handleEdit = async (customerId) => {
+    navigate("/v1/editcustomer", {
+      state: { customerId: customerId },
+    });
   };
 
   const handleChangePage = (event, newPage) => {
@@ -79,6 +85,10 @@ export const CustomerInfo = () => {
     setPage(0);
   };
 
+  const handleAddCustomer = () => {
+    navigate("/v1/addcustomer");
+  };
+
   const style = () => {
     return { border: 1, borderColor: "grey.400", fontWeight: "bold" };
   };
@@ -86,6 +96,18 @@ export const CustomerInfo = () => {
   return (
     <div>
       <Layout onSearch={handleSearch} />
+      <Box display="flex" justifyContent="flex-end" marginBottom={2}>
+        <Button
+          color="primary"
+          variant="outlined"
+          onClick={handleAddCustomer}
+          startIcon={<Add />}
+          sx={{ border: "1px solid" }}
+        >
+          Add Customer
+        </Button>
+      </Box>
+
       <TableContainer component={Paper}>
         <Table sx={style}>
           <TableHead>
@@ -160,7 +182,9 @@ export const CustomerInfo = () => {
                       >
                         <Visibility />
                       </IconButton>
-                      <IconButton>
+                      <IconButton
+                        onClick={() => handleEdit(customer.customerId)}
+                      >
                         <Edit />
                       </IconButton>
                     </Box>

@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const customerSchema = Joi.object({
-  customerId: Joi.string().required(),
+  customerId: Joi.string().optional(),
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   company: Joi.string().optional(),

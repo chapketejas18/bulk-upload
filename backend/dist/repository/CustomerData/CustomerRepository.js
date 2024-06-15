@@ -48,7 +48,7 @@ class CustomerRepository {
             return CustomerModel_1.default.find(query);
         });
         this.getCustomerById = (customerId) => __awaiter(this, void 0, void 0, function* () {
-            return CustomerModel_1.default.findOne({ customerId });
+            return CustomerModel_1.default.findOne({ customerId }, { _id: 0 });
         });
         this.updateCustomer = (customerId, newData) => __awaiter(this, void 0, void 0, function* () {
             return CustomerModel_1.default.findOneAndUpdate({ customerId }, newData, { new: true });

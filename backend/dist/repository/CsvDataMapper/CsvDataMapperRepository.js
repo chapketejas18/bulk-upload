@@ -24,6 +24,10 @@ class CsvDataMapperRepository {
                 throw new Error("Error updating CSV info");
             }
         });
+        this.getInfoData = (page, limit) => __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            return yield CsvDataMapperModel_1.CsvDataMapperModel.find().skip(skip).limit(limit);
+        });
     }
 }
 exports.default = new CsvDataMapperRepository();

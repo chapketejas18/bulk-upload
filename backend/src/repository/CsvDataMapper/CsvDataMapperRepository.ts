@@ -17,6 +17,11 @@ class CsvDataMapperRepository {
       throw new Error("Error updating CSV info");
     }
   };
+
+  getInfoData = async (page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    return await CsvDataMapperModel.find().skip(skip).limit(limit);
+  };
 }
 
 export default new CsvDataMapperRepository();

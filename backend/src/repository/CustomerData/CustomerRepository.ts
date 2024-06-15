@@ -40,7 +40,7 @@ class CustomerRepository {
   };
 
   getCustomerById = async (customerId: string) => {
-    return Customer.findOne({ customerId });
+    return Customer.findOne({ customerId }, { _id: 0 });
   };
 
   updateCustomer = async (customerId: string, newData: Partial<ICustomer>) => {

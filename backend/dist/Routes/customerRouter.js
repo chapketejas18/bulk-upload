@@ -14,4 +14,5 @@ router.post("/import-csv", upload_1.uploadCSV, csvController_1.importCSV);
 router.post("/search", customerController_1.default.searchCustomer);
 router.post("/get-customer", customerController_1.default.getSingleCustomer);
 router.put("/edit-customer", customerController_1.default.editCustomer);
+router.get("/getcsvinfo", customerController_1.default.getCsvInfos);
 exports.default = router;

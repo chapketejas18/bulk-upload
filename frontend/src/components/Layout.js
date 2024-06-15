@@ -17,11 +17,10 @@ import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import GroupsIcon from "@mui/icons-material/Groups";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const routes = [
-  { path: "/v1/addcustomer", name: "Add a customer", icon: <PersonAddIcon /> },
+  { path: "/v1/bulklisting", name: "Bulk Listing", icon: <PersonAddIcon /> },
   { path: "/v1/bulkupload", name: "Bulk Upload", icon: <UploadFileIcon /> },
 ];
 

@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
 const CustomerRepository_1 = __importDefault(require("../repository/CustomerData/CustomerRepository"));
 const customerSchema_1 = require("../config/customerSchema");
+const CsvDataMapperRepository_1 = __importDefault(require("../repository/CsvDataMapper/CsvDataMapperRepository"));
+const CsvDataMapperModel_1 = require("../repository/CsvDataMapper/CsvDataMapperModel");
 dotenv.config();
 class customerController {
     constructor() {
@@ -86,7 +88,7 @@ class customerController {
                 const { error } = customerSchema_1.customerSchema.validate(newData);
                 if (error) {
                     res.status(400).json({
-                        message: "Validation error in new data",
+                        message: "Validation error in edited data",
                         validationErrors: error,
                     });
                     return;
@@ -97,6 +99,22 @@ class customerController {
             catch (error) {
                 console.log("Error updating customer:", error);
                 res.status(500).json({ error: "Internal server error" });
+            }
+        });
+        this.getCsvInfos = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const page = parseInt(req.query.page);
+                const limit = parseInt(req.query.limit);
+                const csvInfoData = yield CsvDataMapperRepository_1.default.getInfoData(page, limit);
+                const totalCount = yield CsvDataMapperModel_1.CsvDataMapperModel.countDocuments();
+                res.status(200).json({
+                    message: "Data fetched successfully",
+                    csvInfoData,
+                    totalCount,
+                });
+            }
+            catch (error) {
+                res.status(500).json({ message: "Internal server error" });
             }
         });
     }
