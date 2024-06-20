@@ -15,12 +15,13 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import ListIcon from "@mui/icons-material/List";
 import { useLocation, useNavigate } from "react-router-dom";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 const routes = [
-  { path: "/v1/bulklisting", name: "Bulk Listing", icon: <PersonAddIcon /> },
+  { path: "/v1/bulklisting", name: "Bulk Listing", icon: <ListIcon /> },
   { path: "/v1/bulkupload", name: "Bulk Upload", icon: <UploadFileIcon /> },
 ];
 
@@ -104,7 +105,7 @@ export const Layout = ({ onSearch }) => {
           >
             Customer logs
           </Typography>
-          {location.pathname == "/v1/customerlogs" && (
+          {location.pathname === "/v1/customerlogs" && (
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -129,6 +130,12 @@ export const Layout = ({ onSearch }) => {
             </ListItem>
           ))}
           <Divider />
+          <ListItem onClick={() => navigate("/v1/customerlogs")}>
+            <ListItemIcon>
+              <GroupsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Logs" />
+          </ListItem>
         </List>
       </Drawer>
     </Box>

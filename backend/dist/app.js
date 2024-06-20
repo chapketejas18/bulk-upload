@@ -15,8 +15,11 @@ const connectToDb_1 = require("./utils/connectToDb");
 const customerRouter_1 = __importDefault(require("./Routes/customerRouter"));
 const errorHandler_1 = __importDefault(require("./Middleware/errorHandler"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swagger_1 = __importDefault(require("./swagger"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
+app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default));
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {

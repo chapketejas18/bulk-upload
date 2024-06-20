@@ -23,28 +23,30 @@ class CustomerRepository {
 
   getAllCustomers = async (page: number, limit: number) => {
     const skip = (page - 1) * limit;
-    return Customer.find().skip(skip).limit(limit);
+    return await Customer.find().skip(skip).limit(limit);
   };
 
   getCustomerCount = async () => {
-    return Customer.countDocuments();
+    return await Customer.countDocuments();
   };
 
   addCustomer = async (body: ICustomer) => {
-    return Customer.create(body);
+    return await Customer.create(body);
   };
 
   searchCustomers = async (searchField: string, searchText: string) => {
     const query = { [searchField]: new RegExp(searchText, "i") };
-    return Customer.find(query);
+    return await Customer.find(query);
   };
 
   getCustomerById = async (customerId: string) => {
-    return Customer.findOne({ customerId }, { _id: 0 });
+    return await Customer.findOne({ customerId }, { _id: 0 });
   };
 
   updateCustomer = async (customerId: string, newData: Partial<ICustomer>) => {
-    return Customer.findOneAndUpdate({ customerId }, newData, { new: true });
+    return await Customer.findOneAndUpdate({ customerId }, newData, {
+      new: true,
+    });
   };
 }
 

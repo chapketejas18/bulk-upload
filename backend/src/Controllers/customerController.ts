@@ -4,6 +4,7 @@ import CustomerRepository from "../repository/CustomerData/CustomerRepository";
 import { customerSchema } from "../config/customerSchema";
 import CsvDataMapperRepository from "../repository/CsvDataMapper/CsvDataMapperRepository";
 import { CsvDataMapperModel } from "../repository/CsvDataMapper/CsvDataMapperModel";
+import DataWithErrorRepository from "../repository/DataWithError/DataWithErrorRepository";
 dotenv.config();
 
 class customerController {
@@ -16,7 +17,7 @@ class customerController {
         limit
       );
       const totalCount = await CustomerRepository.getCustomerCount();
-      res.json({
+      res.status(200).json({
         message: "Data fetched successfully",
         customerData,
         totalCount,
@@ -32,7 +33,7 @@ class customerController {
       const body = req.body;
       const { error } = customerSchema.validate(body);
       if (error) {
-        res.json({
+        res.status(404).json({
           message: "Data not inserted due validation error in data provided",
           validationErrors: error,
         });
@@ -53,7 +54,9 @@ class customerController {
         searchField,
         searchText
       );
-      res.json({ message: "Search results fetched successfully", searchData });
+      res
+        .status(200)
+        .json({ message: "Search results fetched successfully", searchData });
     } catch (error) {
       console.log("Error searching data:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -68,7 +71,7 @@ class customerController {
         res.status(404).json({ error: "Customer not found" });
         return;
       }
-      res.json({ message: "Customer found", customer });
+      res.status(200).json({ message: "Customer found", customer });
     } catch (error) {
       console.log("Error fetching customer:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -90,7 +93,9 @@ class customerController {
         customerId,
         newData
       );
-      res.json({ message: "Customer updated", customer: updatedCustomer });
+      res
+        .status(200)
+        .json({ message: "Customer updated", customer: updatedCustomer });
     } catch (error) {
       console.log("Error updating customer:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -113,6 +118,27 @@ class customerController {
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+  getAllErrors = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const csvId = req.query.id as string;
+      const errorData = await DataWithErrorRepository.getErrorsByCsvId(csvId);
+      if (!errorData) {
+        res
+          .status(404)
+          .json({ error: "No data found with the provided CSV ID" });
+        return;
+      }
+      res.status(200).json({
+        message: "Data fetched successfully",
+        errorData,
+        totalCount: errorData.length,
+      });
+    } catch (error) {
+      console.log("Error fetching errors:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   };
 }

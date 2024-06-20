@@ -1,17 +1,24 @@
 import React, { useState } from "react";
-import Button from "@mui/material/Button";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Snackbar,
+  Alert,
+  Backdrop,
+  CircularProgress,
+  TablePagination,
+  IconButton,
+} from "@mui/material";
 import { Layout } from "./Layout";
+import axios from "axios";
+import { ArrowCircleLeft } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 export const BulkUpload = () => {
   const [file, setFile] = useState(null);
@@ -24,6 +31,9 @@ export const BulkUpload = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [uploadingProgress, setUploadingProgress] = useState(false);
   const [errorData, setErrorData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const navigate = useNavigate();
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -43,17 +53,19 @@ export const BulkUpload = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:9000/api/import-csv", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
+      const response = await axios.post(
+        "http://localhost:9000/api/import-csv",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.statusText !== "OK") {
         throw new Error("Upload failed");
       }
-
-      const data = await response.json();
-
+      const data = response.data;
       setEndTime(new Date());
       setTotalRowsInserted(data.totalRowsInserted);
       setErrorData(data.errorData || []);
@@ -87,6 +99,15 @@ export const BulkUpload = () => {
     setSnackbarOpen(false);
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <div>
       <Layout />
@@ -99,6 +120,12 @@ export const BulkUpload = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
+          <IconButton
+            onClick={() => navigate("/v1/customerlogs")}
+            sx={{ margin: 1 }}
+          >
+            <ArrowCircleLeft />
+          </IconButton>
           <h2>Select file to upload :</h2>
           <input
             id="file-input"
@@ -106,6 +133,7 @@ export const BulkUpload = () => {
             accept=".csv"
             onChange={handleFileChange}
             style={{ position: "absolute", left: "-9999px" }}
+            data-testid="file-input"
           />
           <Button
             variant="contained"
@@ -183,15 +211,26 @@ export const BulkUpload = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {errorData.map((error, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{error.rowNumber}</TableCell>
-                    <TableCell>{error.validationerrors}</TableCell>
-                  </TableRow>
-                ))}
+                {errorData
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((error, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{error.rowNumber}</TableCell>
+                      <TableCell>{error.validationerrors}</TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={errorData.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </>
       )}
       <Snackbar

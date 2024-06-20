@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Box,
   Typography,
   Card,
   CardContent,
@@ -10,13 +9,16 @@ import {
   TableContainer,
   TableRow,
   Paper,
+  IconButton,
 } from "@mui/material";
 import { Layout } from "./Layout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
 
 export const ViewData = () => {
   const location = useLocation();
   const { customerData } = location.state;
+  const navigate = useNavigate();
 
   return (
     <>
@@ -29,7 +31,13 @@ export const ViewData = () => {
           alignItems: "center",
         }}
       >
-        <Card sx={{ width: 900, height: "550px" }}>
+        <Card sx={{ margin: 3, padding: 3, width: 900, position: "relative" }}>
+          <IconButton
+            onClick={() => navigate("/v1/customerlogs")}
+            sx={{ position: "absolute", left: 10, top: 10 }}
+          >
+            <ArrowBack />
+          </IconButton>
           <CardContent>
             <center>
               <Typography

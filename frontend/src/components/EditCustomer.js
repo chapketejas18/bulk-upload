@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Paper,
+  Typography,
+  Alert,
+  IconButton,
+} from "@mui/material";
+import ArrowBack from "@mui/icons-material/ArrowBack";
 import { Layout } from "./Layout";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -22,6 +32,7 @@ export const EditCustomer = () => {
     subscriptionDate: "",
     website: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchCustomerData();
@@ -75,13 +86,30 @@ export const EditCustomer = () => {
   };
 
   const validationSchema = Yup.object({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
+    firstName: Yup.string()
+      .matches(
+        /^[a-zA-Z\s]*$/,
+        "First Name must contain only letters and spaces"
+      )
+      .required("First Name is required"),
+    lastName: Yup.string()
+      .matches(
+        /^[a-zA-Z\s]*$/,
+        "Last Name must contain only letters and spaces"
+      )
+      .required("Last Name is required"),
     company: Yup.string().required("Company is required"),
-    city: Yup.string().required("City is required"),
-    country: Yup.string().required("Country is required"),
-    phone1: Yup.string().required("Phone 1 is required"),
+    city: Yup.string()
+      .matches(/^[a-zA-Z\s]*$/, "City must contain only letters and spaces")
+      .required("City is required"),
+    country: Yup.string()
+      .matches(/^[a-zA-Z\s]*$/, "Country must contain only letters and spaces")
+      .required("Country is required"),
+    phone1: Yup.string()
+      .matches(/^[0-9+()\-]{1,15}$/, "Phone 1 must be a valid phone number")
+      .required("Phone 1 is required"),
     phone2: Yup.string()
+      .matches(/^[0-9+()\-]{1,15}$/, "Phone 2 must be a valid phone number")
       .required("Phone 2 is required")
       .test(
         "phone-not-same",
@@ -102,13 +130,24 @@ export const EditCustomer = () => {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
+        setErrorMessage("");
+        const formattedValues = {
+          ...values,
+          subscriptionDate: format(
+            new Date(values.subscriptionDate),
+            "yyyy-MM-dd"
+          ),
+        };
         await axios.put(`http://localhost:9000/api/edit-customer`, {
           customerId,
-          newData: values,
+          newData: formattedValues,
         });
         navigate("/v1/customerlogs");
       } catch (error) {
-        console.error("Error updating customer information:", error);
+        setErrorMessage(
+          error.response?.data?.validationErrors.details[0].message ||
+            error.validationErrors.details[0].message
+        );
       }
     },
     enableReinitialize: true,
@@ -136,10 +175,18 @@ export const EditCustomer = () => {
     <div>
       <Layout />
       <center>
-        <Paper sx={{ margin: 3, padding: 3, width: 500 }}>
-          <Typography variant="h6" gutterBottom>
+        <Paper sx={{ margin: 3, padding: 3, width: 500, position: "relative" }}>
+          <IconButton
+            onClick={() => navigate("/v1/customerlogs")}
+            sx={{ position: "absolute", left: 10, top: 10 }}
+          >
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h6" gutterBottom fontWeight="bold">
             Edit Customer
           </Typography>
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+          <br />
           <form onSubmit={formik.handleSubmit}>
             <Box display="grid" gap={2}>
               {fields.map((field) => (

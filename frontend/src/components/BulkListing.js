@@ -10,18 +10,23 @@ import {
   TableRow,
   Paper,
   TablePagination,
-  Box,
+  Button,
 } from "@mui/material";
 
 export const BulkListing = () => {
   const [csvInfoData, setCsvInfoData] = useState(null);
+  const [errorData, setErrorData] = useState(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [pageError, setPageError] = useState(0);
+  const [rowsPerPageError, setRowsPerPageError] = useState(5);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:9000/api/getcsvinfo")
-      .then((response) => {
+    const fetchCsvInfoData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:9000/api/getcsvinfo"
+        );
         if (
           response.data &&
           response.data.csvInfoData &&
@@ -29,8 +34,12 @@ export const BulkListing = () => {
         ) {
           setCsvInfoData(response.data.csvInfoData);
         }
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchCsvInfoData();
   }, []);
 
   const handleChangePage = (event, newPage) => {
@@ -40,6 +49,15 @@ export const BulkListing = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleChangePageError = (event, newPage) => {
+    setPageError(newPage);
+  };
+
+  const handleChangeRowsPerPageError = (event) => {
+    setRowsPerPageError(parseInt(event.target.value, 10));
+    setPageError(0);
   };
 
   const formatDateTime = (dateTimeString) => {
@@ -57,6 +75,27 @@ export const BulkListing = () => {
     return { border: 1, borderColor: "grey.400", fontWeight: "bold" };
   };
 
+  const handleViewClick = async (id) => {
+    try {
+      // Clear existing error data
+      setErrorData(null);
+
+      // Fetch new error data
+      const response = await axios.get(
+        `http://localhost:9000/api/getallerrorsofcsv?id=${id}`
+      );
+      if (response.data && response.data.errorData) {
+        setErrorData(response.data.errorData);
+      }
+    } catch (error) {
+      console.error("Error fetching error data:", error);
+    }
+  };
+
+  const clearErrorData = () => {
+    setErrorData(null);
+  };
+
   return (
     <div>
       <Layout />
@@ -68,6 +107,7 @@ export const BulkListing = () => {
               <TableCell sx={style}>Ended At</TableCell>
               <TableCell sx={style}>Filename</TableCell>
               <TableCell sx={style}>No of Uploaded Data</TableCell>
+              <TableCell sx={style}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -88,12 +128,20 @@ export const BulkListing = () => {
                     <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
                       {item.noofuploadeddata}
                     </TableCell>
+                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
+                      <Button
+                        color="primary"
+                        onClick={() => handleViewClick(item._id)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
             {!csvInfoData && (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   align="center"
                   sx={{ border: 1, borderColor: "grey.400" }}
                 >
@@ -113,6 +161,48 @@ export const BulkListing = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+      {errorData && (
+        <div>
+          <h2>Error Data</h2>
+          <TableContainer component={Paper}>
+            <Table sx={style}>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={style}>Row Number</TableCell>
+                  <TableCell sx={style}>Errors</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {errorData
+                  .slice(
+                    pageError * rowsPerPageError,
+                    pageError * rowsPerPageError + rowsPerPageError
+                  )
+                  .map((error) => (
+                    <TableRow key={error.csvid}>
+                      <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
+                        {error.rowNumber}
+                      </TableCell>
+                      <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
+                        {error.validationerrors}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={errorData ? errorData.length : 0}
+            rowsPerPage={rowsPerPageError}
+            page={pageError}
+            onPageChange={handleChangePageError}
+            onRowsPerPageChange={handleChangeRowsPerPageError}
+          />
+          <Button onClick={clearErrorData}>Hide Error Data</Button>
+        </div>
+      )}
     </div>
   );
 };

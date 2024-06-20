@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongodb_1 = require("mongodb");
 const DataWithErrorModel_1 = require("./DataWithErrorModel");
 class DataWithErrorRepository {
     constructor() {
@@ -17,9 +18,12 @@ class DataWithErrorRepository {
                 yield DataWithErrorModel_1.DataWithErrorModel.insertMany(customersWithError);
             }
             catch (error) {
-                console.log(error);
                 throw new Error("Error inserting customers");
             }
+        });
+        this.getErrorsByCsvId = (csvId) => __awaiter(this, void 0, void 0, function* () {
+            const objectId = new mongodb_1.ObjectId(csvId);
+            return yield DataWithErrorModel_1.DataWithErrorModel.find({ csvid: objectId });
         });
     }
 }

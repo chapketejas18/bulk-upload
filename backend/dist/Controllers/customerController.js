@@ -17,6 +17,7 @@ const CustomerRepository_1 = __importDefault(require("../repository/CustomerData
 const customerSchema_1 = require("../config/customerSchema");
 const CsvDataMapperRepository_1 = __importDefault(require("../repository/CsvDataMapper/CsvDataMapperRepository"));
 const CsvDataMapperModel_1 = require("../repository/CsvDataMapper/CsvDataMapperModel");
+const DataWithErrorRepository_1 = __importDefault(require("../repository/DataWithError/DataWithErrorRepository"));
 dotenv.config();
 class customerController {
     constructor() {
@@ -26,7 +27,7 @@ class customerController {
                 const limit = parseInt(req.query.limit);
                 const customerData = yield CustomerRepository_1.default.getAllCustomers(page, limit);
                 const totalCount = yield CustomerRepository_1.default.getCustomerCount();
-                res.json({
+                res.status(200).json({
                     message: "Data fetched successfully",
                     customerData,
                     totalCount,
@@ -42,7 +43,7 @@ class customerController {
                 const body = req.body;
                 const { error } = customerSchema_1.customerSchema.validate(body);
                 if (error) {
-                    res.json({
+                    res.status(404).json({
                         message: "Data not inserted due validation error in data provided",
                         validationErrors: error,
                     });
@@ -60,7 +61,9 @@ class customerController {
             try {
                 const { searchField, searchText } = req.body;
                 const searchData = yield CustomerRepository_1.default.searchCustomers(searchField, searchText);
-                res.json({ message: "Search results fetched successfully", searchData });
+                res
+                    .status(200)
+                    .json({ message: "Search results fetched successfully", searchData });
             }
             catch (error) {
                 console.log("Error searching data:", error);
@@ -75,7 +78,7 @@ class customerController {
                     res.status(404).json({ error: "Customer not found" });
                     return;
                 }
-                res.json({ message: "Customer found", customer });
+                res.status(200).json({ message: "Customer found", customer });
             }
             catch (error) {
                 console.log("Error fetching customer:", error);
@@ -94,7 +97,9 @@ class customerController {
                     return;
                 }
                 const updatedCustomer = yield CustomerRepository_1.default.updateCustomer(customerId, newData);
-                res.json({ message: "Customer updated", customer: updatedCustomer });
+                res
+                    .status(200)
+                    .json({ message: "Customer updated", customer: updatedCustomer });
             }
             catch (error) {
                 console.log("Error updating customer:", error);
@@ -115,6 +120,27 @@ class customerController {
             }
             catch (error) {
                 res.status(500).json({ message: "Internal server error" });
+            }
+        });
+        this.getAllErrors = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const csvId = req.query.id;
+                const errorData = yield DataWithErrorRepository_1.default.getErrorsByCsvId(csvId);
+                if (!errorData) {
+                    res
+                        .status(404)
+                        .json({ error: "No data found with the provided CSV ID" });
+                    return;
+                }
+                res.status(200).json({
+                    message: "Data fetched successfully",
+                    errorData,
+                    totalCount: errorData.length,
+                });
+            }
+            catch (error) {
+                console.log("Error fetching errors:", error);
+                res.status(500).json({ error: "Internal server error" });
             }
         });
     }

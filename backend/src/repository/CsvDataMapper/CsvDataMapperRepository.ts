@@ -3,7 +3,7 @@ import { ICsvDataMapper } from "./ICsvDataMapper";
 
 class CsvDataMapperRepository {
   insertCsvInfo = async (csvinfo: ICsvDataMapper) => {
-    return CsvDataMapperModel.create(csvinfo);
+    return await CsvDataMapperModel.create(csvinfo);
   };
 
   updateCsvInfo = async (

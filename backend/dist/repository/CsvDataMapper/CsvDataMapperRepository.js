@@ -13,7 +13,7 @@ const CsvDataMapperModel_1 = require("./CsvDataMapperModel");
 class CsvDataMapperRepository {
     constructor() {
         this.insertCsvInfo = (csvinfo) => __awaiter(this, void 0, void 0, function* () {
-            return CsvDataMapperModel_1.CsvDataMapperModel.create(csvinfo);
+            return yield CsvDataMapperModel_1.CsvDataMapperModel.create(csvinfo);
         });
         this.updateCsvInfo = (id, updateData) => __awaiter(this, void 0, void 0, function* () {
             try {

@@ -10,9 +10,12 @@ import { connectToMongoDB } from "./utils/connectToDb";
 import customerRouter from "./Routes/customerRouter";
 import errorHandler from "./Middleware/errorHandler";
 import fileUpload from "express-fileupload";
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger";
 dotenv.config();
 
 const app = express();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {

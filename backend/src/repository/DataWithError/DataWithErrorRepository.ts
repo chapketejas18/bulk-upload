@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { DataWithErrorModel } from "./DataWithErrorModel";
 
 class DataWithErrorRepository {
@@ -5,9 +6,13 @@ class DataWithErrorRepository {
     try {
       await DataWithErrorModel.insertMany(customersWithError);
     } catch (error) {
-      console.log(error);
       throw new Error("Error inserting customers");
     }
+  };
+
+  getErrorsByCsvId = async (csvId: string) => {
+    const objectId = new ObjectId(csvId);
+    return await DataWithErrorModel.find({ csvid: objectId });
   };
 }
 

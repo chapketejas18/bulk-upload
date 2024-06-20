@@ -8,14 +8,20 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const secretKey = process.env.SECRECT_KEY;
 const authenticate = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
         res.status(401).json({ error: "Authentication failed. Token is missing." });
+        return;
+    }
+    const [scheme, token] = authHeader.split(" ");
+    if (scheme !== "Bearer" || !token) {
+        res
+            .status(401)
+            .json({ error: "Authentication failed. Invalid token format." });
+        return;
     }
     try {
-        const decoded = jwt.verify(token, secretKey);
-        req.userid = decoded.existingUser.user._id;
-        // console.log("::::req.user", req.userid);
+        jwt.verify(token, secretKey);
         next();
     }
     catch (error) {
