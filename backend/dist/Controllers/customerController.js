@@ -25,8 +25,16 @@ class customerController {
             try {
                 const page = parseInt(req.query.page);
                 const limit = parseInt(req.query.limit);
-                const customerData = yield CustomerRepository_1.default.getAllCustomers(page, limit);
-                const totalCount = yield CustomerRepository_1.default.getCustomerCount();
+                const searchField = req.body.searchField;
+                const searchText = req.body.searchText;
+                const customerData = yield CustomerRepository_1.default.getAllCustomers(page, limit, searchField, searchText);
+                let totalCount;
+                if (searchField && searchText) {
+                    totalCount = yield CustomerRepository_1.default.getCustomerCount(searchField, searchText);
+                }
+                else {
+                    totalCount = yield CustomerRepository_1.default.getCustomerCount();
+                }
                 res.status(200).json({
                     message: "Data fetched successfully",
                     customerData,
@@ -54,19 +62,6 @@ class customerController {
             }
             catch (error) {
                 console.log("Error creating data:", error);
-                res.status(500).json({ error: "Internal server error" });
-            }
-        });
-        this.searchCustomer = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { searchField, searchText } = req.body;
-                const searchData = yield CustomerRepository_1.default.searchCustomers(searchField, searchText);
-                res
-                    .status(200)
-                    .json({ message: "Search results fetched successfully", searchData });
-            }
-            catch (error) {
-                console.log("Error searching data:", error);
                 res.status(500).json({ error: "Internal server error" });
             }
         });

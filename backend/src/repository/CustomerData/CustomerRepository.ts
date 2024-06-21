@@ -21,22 +21,30 @@ class CustomerRepository {
     }
   };
 
-  getAllCustomers = async (page: number, limit: number) => {
+  getAllCustomers = async (
+    page: number,
+    limit: number,
+    searchField?: string,
+    searchText?: string
+  ) => {
     const skip = (page - 1) * limit;
-    return await Customer.find().skip(skip).limit(limit);
+    let query = {};
+    if (searchField && searchText) {
+      query = { [searchField]: new RegExp(searchText, "i") };
+    }
+    return await Customer.find(query).skip(skip).limit(limit);
   };
 
-  getCustomerCount = async () => {
-    return await Customer.countDocuments();
+  getCustomerCount = async (searchField?: string, searchText?: string) => {
+    let query = {};
+    if (searchField && searchText) {
+      query = { [searchField]: new RegExp(searchText, "i") };
+    }
+    return await Customer.countDocuments(query);
   };
 
   addCustomer = async (body: ICustomer) => {
     return await Customer.create(body);
-  };
-
-  searchCustomers = async (searchField: string, searchText: string) => {
-    const query = { [searchField]: new RegExp(searchText, "i") };
-    return await Customer.find(query);
   };
 
   getCustomerById = async (customerId: string) => {

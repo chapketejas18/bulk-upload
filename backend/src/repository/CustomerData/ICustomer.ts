@@ -11,7 +11,6 @@ export interface ICustomer extends Document {
   phone1: string;
   phone2?: string;
   email: string;
-  subscriptionDate?: Date;
   website?: string;
   csvid: ObjectId;
 }

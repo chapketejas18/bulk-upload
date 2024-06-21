@@ -12,11 +12,25 @@ class customerController {
     try {
       const page = parseInt(req.query.page as string);
       const limit = parseInt(req.query.limit as string);
+      const searchField = req.body.searchField as string;
+      const searchText = req.body.searchText as string;
       const customerData = await CustomerRepository.getAllCustomers(
         page,
-        limit
+        limit,
+        searchField,
+        searchText
       );
-      const totalCount = await CustomerRepository.getCustomerCount();
+
+      let totalCount;
+      if (searchField && searchText) {
+        totalCount = await CustomerRepository.getCustomerCount(
+          searchField,
+          searchText
+        );
+      } else {
+        totalCount = await CustomerRepository.getCustomerCount();
+      }
+
       res.status(200).json({
         message: "Data fetched successfully",
         customerData,
@@ -43,22 +57,6 @@ class customerController {
       res.status(200).json({ status: "Created Successfully", addedData });
     } catch (error) {
       console.log("Error creating data:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  };
-
-  searchCustomer = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { searchField, searchText } = req.body;
-      const searchData = await CustomerRepository.searchCustomers(
-        searchField,
-        searchText
-      );
-      res
-        .status(200)
-        .json({ message: "Search results fetched successfully", searchData });
-    } catch (error) {
-      console.log("Error searching data:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   };

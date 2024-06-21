@@ -47,7 +47,6 @@ const importCSV = (req, res) => {
                 phone1: data["Phone 1"],
                 phone2: data["Phone 2"],
                 email: data.Email,
-                subscriptionDate: new Date(data["Subscription Date"]),
                 website: data.Website,
             };
             const { error } = customerSchema_1.customerSchema.validate(customer);

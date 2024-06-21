@@ -33,10 +33,10 @@ const validationSchema = Yup.object({
     .matches(/^[a-zA-Z\s]*$/, "Country must contain only letters and spaces")
     .required("Country is required"),
   phone1: Yup.string()
-    .matches(/^[0-9+()\-]{1,15}$/, "Phone 1 must be a valid phone number")
+    .matches(/^[0-9+()-]{1,15}$/, "Phone 1 must be a valid phone number")
     .required("Phone 1 is required"),
   phone2: Yup.string()
-    .matches(/^[0-9+()\-]{1,15}$/, "Phone 2 must be a valid phone number")
+    .matches(/^[0-9+()-]{1,15}$/, "Phone 2 must be a valid phone number")
     .required("Phone 2 is required")
     .test(
       "phone-not-same",
@@ -48,7 +48,6 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email format")
     .required("Email is required"),
-  subscriptionDate: Yup.date().required("Subscription Date is required"),
   website: Yup.string().url("Invalid URL").required("Website is required"),
 });
 
@@ -75,7 +74,6 @@ export const AddCustomer = () => {
       phone1: "",
       phone2: "",
       email: "",
-      subscriptionDate: "",
       website: "",
     },
     validationSchema: validationSchema,
@@ -125,11 +123,6 @@ export const AddCustomer = () => {
                 { id: "phone1", label: "Phone 1" },
                 { id: "phone2", label: "Phone 2" },
                 { id: "email", label: "Email" },
-                {
-                  id: "subscriptionDate",
-                  label: "Subscription Date",
-                  type: "date",
-                },
                 { id: "website", label: "Website" },
               ].map((field) => (
                 <Grid item xs={12} key={field.id}>

@@ -1,45 +1,49 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Table,
-  TableBody,
-  TableCell,
   TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   TablePagination,
-  IconButton,
+  Paper,
   Box,
   Button,
   CircularProgress,
+  IconButton,
+  Typography,
 } from "@mui/material";
 import { Visibility, Edit, Add, CloudUpload } from "@mui/icons-material";
 import { Layout } from "./Layout";
 import { useNavigate } from "react-router-dom";
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CustomerInfo = () => {
   const [customers, setCustomers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(100);
   const [totalCount, setTotalCount] = useState(0);
+  const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!searchActive) {
-      fetchCustomerData();
-    }
-  }, [page, rowsPerPage, searchActive]);
+    fetchCustomerData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage]);
 
   const fetchCustomerData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         `http://localhost:9000/api/customerinfo?page=${
           page + 1
-        }&limit=${rowsPerPage}`
+        }&limit=${rowsPerPage}`,
+        searchActive ? { searchField: "firstName", searchText } : {}
       );
       const { customerData, totalCount } = response.data;
       setCustomers(customerData);
@@ -54,15 +58,19 @@ export const CustomerInfo = () => {
   const handleSearch = async (searchText) => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:9000/api/search`, {
-        searchField: "firstName",
-        searchText: searchText,
-        page: page + 1,
-        limit: rowsPerPage,
-      });
-      setCustomers(response.data.searchData);
-      setTotalCount(response.data.searchData.length);
+      setSearchText(searchText);
       setSearchActive(true);
+      setPage(0);
+      const response = await axios.post(
+        `http://localhost:9000/api/customerinfo?page=1&limit=${rowsPerPage}`,
+        {
+          searchField: "firstName",
+          searchText: searchText,
+        }
+      );
+      const { customerData, totalCount } = response.data;
+      setCustomers(customerData);
+      setTotalCount(totalCount);
     } catch (error) {
       console.error("Error searching customer information:", error);
     } finally {
@@ -95,17 +103,8 @@ export const CustomerInfo = () => {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    const newRowsPerPage = parseInt(event.target.value, 10);
-    if (totalCount <= newRowsPerPage) {
-      setRowsPerPage(newRowsPerPage);
-      setPage(0);
-    } else {
-      setRowsPerPage(newRowsPerPage);
-      setPage(0);
-      if (!searchActive) {
-        fetchCustomerData();
-      }
-    }
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const handleAddCustomer = () => {
@@ -116,9 +115,74 @@ export const CustomerInfo = () => {
     navigate("/v1/bulkupload");
   };
 
-  const style = () => {
-    return { border: 1, borderColor: "grey.400", fontWeight: "bold" };
-  };
+  const columns = [
+    {
+      id: "index",
+      header: "Index",
+      cell: (info) => info.row.index + 1 + page * rowsPerPage,
+    },
+    { accessorKey: "customerId", header: "Customer ID" },
+    { accessorKey: "firstName", header: "First Name" },
+    { accessorKey: "lastName", header: "Last Name" },
+    {
+      accessorKey: "company",
+      header: "Company",
+    },
+    {
+      accessorKey: "city",
+      header: "City",
+    },
+    {
+      accessorKey: "country",
+      header: "Country",
+    },
+    { accessorKey: "phone1", header: "Phone 1" },
+    {
+      accessorKey: "phone2",
+      header: "Phone 2",
+    },
+    { accessorKey: "email", header: "Email" },
+    {
+      accessorKey: "website",
+      header: "Website",
+    },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: (info) => (
+        <Box display="flex">
+          <IconButton onClick={() => handleView(info.row.original.customerId)}>
+            <Visibility />
+          </IconButton>
+          <IconButton onClick={() => handleEdit(info.row.original.customerId)}>
+            <Edit />
+          </IconButton>
+        </Box>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: customers,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const rowVirtualizer = useVirtualizer({
+    count: table.getRowModel().rows.length,
+    getScrollElement: () => document.getElementById("table-container"),
+    estimateSize: () => 35,
+    overscan: 10,
+  });
+
+  const virtualRows = rowVirtualizer.getVirtualItems();
+  const totalSize = rowVirtualizer.getTotalSize();
+  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
+  const paddingBottom =
+    virtualRows.length > 0
+      ? totalSize - virtualRows[virtualRows.length - 1].end
+      : 0;
 
   return (
     <div>
@@ -149,99 +213,88 @@ export const CustomerInfo = () => {
           display="flex"
           justifyContent="center"
           alignItems="center"
-          height="100vh"
+          height="75vh"
         >
           <CircularProgress />
         </Box>
+      ) : customers.length === 0 ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="75vh"
+        >
+          <Typography>
+            No data available at the moment, please try again later!
+          </Typography>
+        </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table sx={style}>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={style}>Customer ID</TableCell>
-                <TableCell sx={style}>First Name</TableCell>
-                <TableCell sx={style}>Last Name</TableCell>
-                <TableCell sx={style}>Company</TableCell>
-                <TableCell sx={style}>City</TableCell>
-                <TableCell sx={style}>Country</TableCell>
-                <TableCell sx={style}>Phone 1</TableCell>
-                <TableCell sx={style}>Phone 2</TableCell>
-                <TableCell sx={style}>Email</TableCell>
-                <TableCell sx={style}>Subscription Date</TableCell>
-                <TableCell sx={style}>Website</TableCell>
-                <TableCell sx={style}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {customers.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={12}
-                    align="center"
-                    sx={{ border: 1, borderColor: "grey.400" }}
-                  >
-                    No data available at the moment. Please try again later.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                customers.map((customer) => (
-                  <TableRow key={customer._id}>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.customerId}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.firstName}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.lastName}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.company || "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.city || "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.country || "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.phone1}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.phone2 || "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.email}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.subscriptionDate
-                        ? new Date(
-                            customer.subscriptionDate
-                          ).toLocaleDateString()
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      {customer.website || "N/A"}
-                    </TableCell>
-                    <TableCell sx={{ border: 1, borderColor: "grey.400" }}>
-                      <Box display="flex">
-                        <IconButton
-                          onClick={() => handleView(customer.customerId)}
-                        >
-                          <Visibility />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => handleEdit(customer.customerId)}
-                        >
-                          <Edit />
-                        </IconButton>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <TableContainer
+          id="table-container"
+          component={Paper}
+          sx={{ height: "75vh", overflowY: "auto" }}
+        >
+          <table
+            style={{
+              width: "100%",
+              tableLayout: "fixed",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      style={{
+                        border: "1px solid grey",
+                        fontWeight: "bold",
+                        padding: "8px",
+                        width: header.column.getSize(),
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              <tr style={{ height: `${paddingTop}px` }} />
+              {virtualRows.map((virtualRow) => {
+                const row = table.getRowModel().rows[virtualRow.index];
+                return (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={{
+                          border: "1px solid grey",
+                          padding: "8px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+              <tr style={{ height: `${paddingBottom}px` }} />
+            </tbody>
+          </table>
         </TableContainer>
       )}
       {customers.length !== 0 && (

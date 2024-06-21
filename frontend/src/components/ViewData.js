@@ -105,18 +105,6 @@ export const ViewData = () => {
                   </TableRow>
                   <TableRow>
                     <TableCell align="center">
-                      <strong>Subscription Date:</strong>
-                    </TableCell>
-                    <TableCell align="center">
-                      {customerData.subscriptionDate
-                        ? new Date(
-                            customerData.subscriptionDate
-                          ).toLocaleDateString()
-                        : "N/A"}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell align="center">
                       <strong>Website:</strong>
                     </TableCell>
                     <TableCell align="center">

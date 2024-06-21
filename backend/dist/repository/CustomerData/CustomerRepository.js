@@ -33,19 +33,23 @@ class CustomerRepository {
                 throw new Error("Error inserting customers");
             }
         });
-        this.getAllCustomers = (page, limit) => __awaiter(this, void 0, void 0, function* () {
+        this.getAllCustomers = (page, limit, searchField, searchText) => __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
-            return yield CustomerModel_1.default.find().skip(skip).limit(limit);
+            let query = {};
+            if (searchField && searchText) {
+                query = { [searchField]: new RegExp(searchText, "i") };
+            }
+            return yield CustomerModel_1.default.find(query).skip(skip).limit(limit);
         });
-        this.getCustomerCount = () => __awaiter(this, void 0, void 0, function* () {
-            return yield CustomerModel_1.default.countDocuments();
+        this.getCustomerCount = (searchField, searchText) => __awaiter(this, void 0, void 0, function* () {
+            let query = {};
+            if (searchField && searchText) {
+                query = { [searchField]: new RegExp(searchText, "i") };
+            }
+            return yield CustomerModel_1.default.countDocuments(query);
         });
         this.addCustomer = (body) => __awaiter(this, void 0, void 0, function* () {
             return yield CustomerModel_1.default.create(body);
-        });
-        this.searchCustomers = (searchField, searchText) => __awaiter(this, void 0, void 0, function* () {
-            const query = { [searchField]: new RegExp(searchText, "i") };
-            return yield CustomerModel_1.default.find(query);
         });
         this.getCustomerById = (customerId) => __awaiter(this, void 0, void 0, function* () {
             return yield CustomerModel_1.default.findOne({ customerId }, { _id: 0 });

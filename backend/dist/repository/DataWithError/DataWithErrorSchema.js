@@ -8,5 +8,6 @@ exports.DataWithErrorSchema = new mongoose_1.Schema({
     csvid: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "csvinfo",
+        index: true,
     },
 });

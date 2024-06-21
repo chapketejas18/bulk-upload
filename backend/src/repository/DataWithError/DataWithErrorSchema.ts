@@ -7,5 +7,6 @@ export const DataWithErrorSchema: Schema<IDataWithError> = new Schema({
   csvid: {
     type: Schema.Types.ObjectId,
     ref: "csvinfo",
+    index: true,
   },
 });

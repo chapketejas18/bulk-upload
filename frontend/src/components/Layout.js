@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -19,6 +18,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import ListIcon from "@mui/icons-material/List";
 import { useLocation, useNavigate } from "react-router-dom";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { debounce } from "lodash";
 
 const routes = [
   { path: "/v1/bulklisting", name: "Bulk Listing", icon: <ListIcon /> },
@@ -76,10 +76,17 @@ export const Layout = ({ onSearch }) => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  const handleSearch = (e) => {
-    if (e.key === "Enter") {
-      onSearch(searchText);
-    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce((text) => {
+      onSearch(text);
+    }, 300),
+    []
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    debouncedSearch(e.target.value);
   };
 
   return (
@@ -114,8 +121,7 @@ export const Layout = ({ onSearch }) => {
                 placeholder="Search…"
                 inputProps={{ "aria-label": "search" }}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                onKeyDown={handleSearch}
+                onChange={handleSearchChange}
               />
             </Search>
           )}

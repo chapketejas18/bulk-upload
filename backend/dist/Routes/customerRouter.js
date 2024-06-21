@@ -18,7 +18,7 @@ const router = (0, express_1.Router)();
 /**
  * @swagger
  * /api/customerinfo:
- *   get:
+ *   post:
  *     summary: Fetch customer data with pagination
  *     tags: [Data]
  *     description: Retrieve customer data with pagination
@@ -43,7 +43,7 @@ const router = (0, express_1.Router)();
  *       404:
  *         description: No data found
  */
-router.get("/customerinfo", customerController_1.default.getAllCustomerData);
+router.post("/customerinfo", customerController_1.default.getAllCustomerData);
 /**
  * @swagger
  * /api/addcustomer:
@@ -119,34 +119,6 @@ router.post("/addcustomer", customerController_1.default.createData);
  *         description: Internal server error
  */
 router.post("/import-csv", upload_1.uploadCSV, csvController_1.importCSV);
-/**
- * @swagger
- * /api/search:
- *   post:
- *     summary: Search for customers
- *     tags: [Data]
- *     description: Search for customers by a specific field and text
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: body
- *         name: body
- *         description: Search parameters
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             searchField:
- *               type: string
- *             searchText:
- *               type: string
- *     responses:
- *       200:
- *         description: Search results fetched successfully
- *       500:
- *         description: Internal server error
- */
-router.post("/search", customerController_1.default.searchCustomer);
 /**
  * @swagger
  * /api/get-customer:
@@ -254,5 +226,29 @@ router.put("/edit-customer", customerController_1.default.editCustomer);
  *         description: Internal server error
  */
 router.get("/getcsvinfo", customerController_1.default.getCsvInfos);
+/**
+ * @swagger
+ * /api/getallerrorsofcsv:
+ *   get:
+ *     summary: Get all errors of a CSV
+ *     tags: [Data]
+ *     description: Retrieve all errors associated with a CSV file using its ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description: The ID of the CSV file
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *       '404':
+ *         description: No data found with the provided CSV ID
+ *       '500':
+ *         description: Internal server error
+ */
 router.get("/getallerrorsofcsv", customerController_1.default.getAllErrors);
 exports.default = router;

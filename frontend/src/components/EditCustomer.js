@@ -29,13 +29,13 @@ export const EditCustomer = () => {
     phone1: "",
     phone2: "",
     email: "",
-    subscriptionDate: "",
     website: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchCustomerData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCustomerData = async () => {
@@ -53,7 +53,6 @@ export const EditCustomer = () => {
         phone1,
         phone2,
         email,
-        subscriptionDate,
         website,
       } = response.data.customer;
       setCustomerData({
@@ -65,7 +64,6 @@ export const EditCustomer = () => {
         phone1,
         phone2,
         email,
-        subscriptionDate,
         website,
       });
       formik.setValues({
@@ -77,7 +75,6 @@ export const EditCustomer = () => {
         phone1,
         phone2,
         email,
-        subscriptionDate,
         website,
       });
     } catch (error) {
@@ -106,10 +103,10 @@ export const EditCustomer = () => {
       .matches(/^[a-zA-Z\s]*$/, "Country must contain only letters and spaces")
       .required("Country is required"),
     phone1: Yup.string()
-      .matches(/^[0-9+()\-]{1,15}$/, "Phone 1 must be a valid phone number")
+      .matches(/^[0-9+()-]{1,15}$/, "Phone 1 must be a valid phone number")
       .required("Phone 1 is required"),
     phone2: Yup.string()
-      .matches(/^[0-9+()\-]{1,15}$/, "Phone 2 must be a valid phone number")
+      .matches(/^[0-9+()-]{1,15}$/, "Phone 2 must be a valid phone number")
       .required("Phone 2 is required")
       .test(
         "phone-not-same",
@@ -121,7 +118,6 @@ export const EditCustomer = () => {
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
-    subscriptionDate: Yup.date().required("Subscription Date is required"),
     website: Yup.string().url("Invalid URL").required("Website is required"),
   });
 
@@ -131,16 +127,9 @@ export const EditCustomer = () => {
     onSubmit: async (values) => {
       try {
         setErrorMessage("");
-        const formattedValues = {
-          ...values,
-          subscriptionDate: format(
-            new Date(values.subscriptionDate),
-            "yyyy-MM-dd"
-          ),
-        };
         await axios.put(`http://localhost:9000/api/edit-customer`, {
           customerId,
-          newData: formattedValues,
+          newData: values,
         });
         navigate("/v1/customerlogs");
       } catch (error) {
@@ -162,12 +151,6 @@ export const EditCustomer = () => {
     { name: "phone1", label: "Phone 1", type: "text", required: true },
     { name: "phone2", label: "Phone 2", type: "text", required: true },
     { name: "email", label: "Email", type: "email", required: true },
-    {
-      name: "subscriptionDate",
-      label: "Subscription Date",
-      type: "date",
-      required: true,
-    },
     { name: "website", label: "Website", type: "url", required: true },
   ];
 

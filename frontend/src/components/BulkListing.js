@@ -19,7 +19,7 @@ export const BulkListing = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [pageError, setPageError] = useState(0);
-  const [rowsPerPageError, setRowsPerPageError] = useState(5);
+  const [rowsPerPageError, setRowsPerPageError] = useState(50);
 
   useEffect(() => {
     const fetchCsvInfoData = async () => {
@@ -77,10 +77,7 @@ export const BulkListing = () => {
 
   const handleViewClick = async (id) => {
     try {
-      // Clear existing error data
       setErrorData(null);
-
-      // Fetch new error data
       const response = await axios.get(
         `http://localhost:9000/api/getallerrorsofcsv?id=${id}`
       );
@@ -192,7 +189,7 @@ export const BulkListing = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[50, 100, 250, 500]}
             component="div"
             count={errorData ? errorData.length : 0}
             rowsPerPage={rowsPerPageError}
