@@ -123,6 +123,7 @@ export const BulkUpload = () => {
           <IconButton
             onClick={() => navigate("/v1/customerlogs")}
             sx={{ margin: 1 }}
+            data-testid="navigate-button"
           >
             <ArrowCircleLeft />
           </IconButton>

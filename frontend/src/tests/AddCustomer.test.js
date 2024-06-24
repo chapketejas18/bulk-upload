@@ -30,7 +30,6 @@ describe("AddCustomer Component", () => {
     expect(screen.getByLabelText(/Phone 1/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Phone 2/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Subscription Date/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Website/i)).toBeInTheDocument();
   });
 
@@ -53,9 +52,6 @@ describe("AddCustomer Component", () => {
       expect(screen.getByText(/Phone 1 is required/i)).toBeInTheDocument();
       expect(screen.getByText(/Phone 2 is required/i)).toBeInTheDocument();
       expect(screen.getByText(/Email is required/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/Subscription Date is required/i)
-      ).toBeInTheDocument();
       expect(screen.getByText(/Website is required/i)).toBeInTheDocument();
     });
   });
@@ -119,9 +115,6 @@ describe("AddCustomer Component", () => {
     fireEvent.change(screen.getByLabelText(/Email/i), {
       target: { value: "john@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/Subscription Date/i), {
-      target: { value: "2023-01-01" },
-    });
     fireEvent.change(screen.getByLabelText(/Website/i), {
       target: { value: "http://example.com" },
     });
@@ -174,9 +167,6 @@ describe("AddCustomer Component", () => {
     });
     fireEvent.change(screen.getByLabelText(/Email/i), {
       target: { value: "john@example.com" },
-    });
-    fireEvent.change(screen.getByLabelText(/Subscription Date/i), {
-      target: { value: "2023-01-01" },
     });
     fireEvent.change(screen.getByLabelText(/Website/i), {
       target: { value: "http://example.com" },

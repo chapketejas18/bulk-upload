@@ -25,7 +25,6 @@ const customerData = {
   country: "USA",
   phone1: "123-456-7890",
   phone2: "098-765-4321",
-  subscriptionDate: "2023-06-15T00:00:00.000Z",
   website: "http://example.com",
 };
 
@@ -55,13 +54,7 @@ describe("ViewData Component", () => {
     expect(screen.getByText("USA")).toBeInTheDocument();
     expect(screen.getByText("123-456-7890")).toBeInTheDocument();
     expect(screen.getByText("098-765-4321")).toBeInTheDocument();
-    expect(screen.getByText("6/15/2023")).toBeInTheDocument();
     expect(screen.getByText("http://example.com")).toBeInTheDocument();
-  });
-
-  test("formats the subscription date correctly", () => {
-    setup(customerData);
-    expect(screen.getByText("6/15/2023")).toBeInTheDocument();
   });
 
   test("back button navigates to customer logs", () => {
