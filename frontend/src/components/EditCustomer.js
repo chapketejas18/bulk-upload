@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import axios from "axios";
@@ -162,6 +163,7 @@ export const EditCustomer = () => {
           <IconButton
             onClick={() => navigate("/v1/customerlogs")}
             sx={{ position: "absolute", left: 10, top: 10 }}
+            aria-label="back"
           >
             <ArrowBack />
           </IconButton>

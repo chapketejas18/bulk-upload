@@ -85,7 +85,7 @@ describe("CustomerInfo Component", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByRole("row"));
+      expect(screen.getAllByRole("row")).toHaveLength(3); // Including the header row
     });
   });
 
@@ -103,5 +103,82 @@ describe("CustomerInfo Component", () => {
         screen.getByText(/No data available at the moment/i)
       ).toBeInTheDocument();
     });
+  });
+
+  // test("handles search functionality", async () => {
+  //   render(
+  //     <Router>
+  //       <CustomerInfo />
+  //     </Router>
+  //   );
+
+  //   fireEvent.change(screen.getByPlaceholderText(/Search/i), {
+  //     target: { value: "John" },
+  //   });
+  //   fireEvent.click(screen.getByRole("button", { name: /Search/i }));
+
+  //   await waitFor(() => {
+  //     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
+  //   });
+  // });
+
+  // test("handles view button click", async () => {
+  //   const mockNavigate = jest.fn();
+  //   useNavigate.mockReturnValue(mockNavigate);
+
+  //   render(
+  //     <Router>
+  //       <CustomerInfo />
+  //     </Router>
+  //   );
+
+  //   await waitFor(() => {
+  //     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
+  //   });
+
+  //   fireEvent.click(screen.getAllByLabelText(/view/i)[0]);
+
+  //   await waitFor(() => {
+  //     expect(mockNavigate).toHaveBeenCalledWith("/v1/viewdata", {
+  //       state: { customerData: mockCustomerData.customerData[0] },
+  //     });
+  //   });
+  // });
+
+  // test("handles edit button click", async () => {
+  //   const mockNavigate = jest.fn();
+  //   useNavigate.mockReturnValue(mockNavigate);
+
+  //   render(
+  //     <Router>
+  //       <CustomerInfo />
+  //     </Router>
+  //   );
+
+  //   await waitFor(() => {
+  //     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
+  //   });
+
+  //   fireEvent.click(screen.getAllByLabelText(/edit/i)[0]);
+
+  //   await waitFor(() => {
+  //     expect(mockNavigate).toHaveBeenCalledWith("/v1/editcustomer", {
+  //       state: { customerId: mockCustomerData.customerData[0].customerId },
+  //     });
+  //   });
+  // });
+
+  test("handles add customer button click", () => {
+    const mockNavigate = jest.fn();
+    useNavigate.mockReturnValue(mockNavigate);
+
+    render(
+      <Router>
+        <CustomerInfo />
+      </Router>
+    );
+
+    fireEvent.click(screen.getByText(/Add Customer/i));
+    expect(mockNavigate).toHaveBeenCalledWith("/v1/addcustomer");
   });
 });

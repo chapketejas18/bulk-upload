@@ -151,10 +151,16 @@ export const CustomerInfo = () => {
       header: "Actions",
       cell: (info) => (
         <Box display="flex">
-          <IconButton onClick={() => handleView(info.row.original.customerId)}>
+          <IconButton
+            aria-label="view"
+            onClick={() => handleView(info.row.original.customerId)}
+          >
             <Visibility />
           </IconButton>
-          <IconButton onClick={() => handleEdit(info.row.original.customerId)}>
+          <IconButton
+            aria-label="edit"
+            onClick={() => handleEdit(info.row.original.customerId)}
+          >
             <Edit />
           </IconButton>
         </Box>
