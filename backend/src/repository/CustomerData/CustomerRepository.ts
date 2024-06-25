@@ -4,16 +4,12 @@ import { ICustomer } from "./ICustomer";
 class CustomerRepository {
   insertCustomers = async (customers: Partial<ICustomer>[]): Promise<void> => {
     try {
-      const batchSize = 1000;
-      let bulkOpCustomers = Customer.collection.initializeUnorderedBulkOp();
-
+      const batchSize = 10000;
       for (let i = 0; i < customers.length; i += batchSize) {
-        const batchCustomers = customers.slice(i, i + batchSize);
-        batchCustomers.forEach((customer) => {
-          bulkOpCustomers.insert(customer);
+        const batchCustomers: any = customers.slice(i, i + batchSize);
+        await Customer.collection.insertMany(batchCustomers, {
+          ordered: false,
         });
-        await bulkOpCustomers.execute();
-        bulkOpCustomers = Customer.collection.initializeUnorderedBulkOp();
       }
     } catch (error) {
       console.log(error);

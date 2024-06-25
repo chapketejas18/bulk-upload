@@ -14,11 +14,16 @@ const DataWithErrorModel_1 = require("./DataWithErrorModel");
 class DataWithErrorRepository {
     constructor() {
         this.insertErrorInfo = (customersWithError) => __awaiter(this, void 0, void 0, function* () {
+            const BATCH_SIZE = 10000;
             try {
-                yield DataWithErrorModel_1.DataWithErrorModel.insertMany(customersWithError);
+                for (let i = 0; i < customersWithError.length; i += BATCH_SIZE) {
+                    const batch = customersWithError.slice(i, i + BATCH_SIZE);
+                    yield DataWithErrorModel_1.DataWithErrorModel.insertMany(batch, { ordered: false });
+                }
             }
             catch (error) {
-                throw new Error("Error inserting customers");
+                console.error("Error inserting error info:", error);
+                throw new Error("Error inserting error info");
             }
         });
         this.getErrorsByCsvId = (csvId) => __awaiter(this, void 0, void 0, function* () {

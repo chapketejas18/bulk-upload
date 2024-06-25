@@ -17,15 +17,12 @@ class CustomerRepository {
     constructor() {
         this.insertCustomers = (customers) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const batchSize = 1000;
-                let bulkOpCustomers = CustomerModel_1.default.collection.initializeUnorderedBulkOp();
+                const batchSize = 10000;
                 for (let i = 0; i < customers.length; i += batchSize) {
                     const batchCustomers = customers.slice(i, i + batchSize);
-                    batchCustomers.forEach((customer) => {
-                        bulkOpCustomers.insert(customer);
+                    yield CustomerModel_1.default.collection.insertMany(batchCustomers, {
+                        ordered: false,
                     });
-                    yield bulkOpCustomers.execute();
-                    bulkOpCustomers = CustomerModel_1.default.collection.initializeUnorderedBulkOp();
                 }
             }
             catch (error) {
